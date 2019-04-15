@@ -13,13 +13,13 @@ using namespace std;
 int inum = -1;
 int nlink = -1;
 char comp = ' ';
-char * pathToProg = "";
+char *pathToProg = "";
 string name = "";
 
 off_t sizeOf;
 
-void setData(int argc, char*argv[]){
-    for (int i = 2; i < argc; ++i){
+void setData(int argc, char *argv[]) {
+    for (int i = 2; i < argc; ++i) {
         if (argv[i] == "-inum") {
             inum = atol(argv[++i]);
             continue;
@@ -55,8 +55,8 @@ void execute(char *path) {
         case 0: {
             //child
             char *args[3] = {pathToProg, path, nullptr};
-            if (execv(pathToProg, args) == -1) {
-                perror("execv");
+            if (execve(pathToProg, args, environ) == -1) {
+                perror("execve");
                 exit(1);
             }
             break;
@@ -73,15 +73,15 @@ void execute(char *path) {
 }
 
 void proccess(char *pathName) {
-    if(pathToProg != "") execute(pathName);
+    if (pathToProg != "") execute(pathName);
     printf("%s\n", pathName);
 }
 
-bool compare(ino_t _inum, nlink_t _nlink, off_t _size, const string& _name){
-    if(inum != -1 && inum != _inum) return false;
-    if(nlink != -1 && nlink != _nlink) return false;
-    if(!name.empty() && name != _name) return false;
-    switch (comp){
+bool compare(ino_t _inum, nlink_t _nlink, off_t _size, const string &_name) {
+    if (inum != -1 && inum != _inum) return false;
+    if (nlink != -1 && nlink != _nlink) return false;
+    if (!name.empty() && name != _name) return false;
+    switch (comp) {
         case '=':
             return sizeOf == _size;
         case '-':
@@ -92,14 +92,14 @@ bool compare(ino_t _inum, nlink_t _nlink, off_t _size, const string& _name){
     return true;
 }
 
-void recursiveFinder(char* path){
+void recursiveFinder(char *path) {
     DIR *d;
     struct dirent *entry;
     struct stat st;
     char dir_name[256];
     char wrk[256];
     int rc;
-    queue <char *> dirs;
+    queue<char *> dirs;
     strcpy(dir_name, path);
     d = opendir(dir_name);
     if (d == NULL) {
@@ -114,9 +114,9 @@ void recursiveFinder(char* path){
         }
         strcpy(wrk, dir_name);
         strcat(wrk, "/");
-        strcat(wrk,entry->d_name);
+        strcat(wrk, entry->d_name);
         rc = stat(wrk, &st);
-        if (rc != 0 ) {
+        if (rc != 0) {
             printf("Ошибка при вызове stat('%s')\n", wrk);
             continue;
         }
@@ -129,8 +129,8 @@ void recursiveFinder(char* path){
         }
     }
 
-    while(!dirs.empty()){
-        char * dir = dirs.front();
+    while (!dirs.empty()) {
+        char *dir = dirs.front();
         dirs.pop();
         recursiveFinder(dir);
     }
@@ -139,7 +139,7 @@ void recursiveFinder(char* path){
 }
 
 int main(int argc, char *argv[]) {
-    if(argc % 2){
+    if (argc % 2) {
         cout << "Wrong number of args";
         exit(1);
     }
