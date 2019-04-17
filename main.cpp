@@ -13,35 +13,35 @@ using namespace std;
 int inum = -1;
 int nlink = -1;
 char comp = ' ';
-char *pathToProg = "";
-string name = "";
-
+char *pathToProg{""};
+string name = {};
 off_t sizeOf;
 
 void setData(int argc, char *argv[]) {
     for (int i = 2; i < argc; ++i) {
-        if (argv[i] == "-inum") {
+        string tmp = argv[i];
+        if (tmp == "-inum") {
             inum = atol(argv[++i]);
             continue;
         }
-        if (argv[i] == "-name") {
+        if (tmp == "-name") {
             name = argv[++i];
             continue;
         }
-        if (argv[i] == "-size") {
+        if (tmp == "-size") {
             comp = argv[i + 1][0];
             sizeOf = atol(argv[++i] + 1);
             continue;
         }
-        if (argv[i] == "-nlinks") {
-            nlink = atoi(argv[++i]);
+        if (tmp == "-nlinks") {
+            nlink = atol(argv[++i]);
             continue;
         }
-        if (argv[i] == "-exec") {
+        if (tmp == "-exec") {
             pathToProg = argv[++i];
             continue;
         }
-        cout << "Unexpected flag";
+        cout << "Unexpected flag" << argv[i];
         exit(1);
     }
 }
@@ -73,7 +73,8 @@ void execute(char *path) {
 }
 
 void proccess(char *pathName) {
-    if (pathToProg != "") execute(pathName);
+    string tmp = pathName;
+    if (!tmp.empty()) execute(pathName);
     printf("%s\n", pathName);
 }
 
@@ -95,19 +96,19 @@ bool compare(ino_t _inum, nlink_t _nlink, off_t _size, const string &_name) {
 void recursiveFinder(char *path) {
     DIR *d;
     struct dirent *entry;
-    struct stat st;
+    struct stat st{};
     char dir_name[256];
     char wrk[256];
     int rc;
     queue<char *> dirs;
     strcpy(dir_name, path);
     d = opendir(dir_name);
-    if (d == NULL) {
+    if (d == nullptr) {
         printf("Ошибка при открытии директории %s\n", dir_name);
         return;
     }
 
-    while ((entry = readdir(d)) != NULL) {
+    while ((entry = readdir(d)) != nullptr) {
         if (strcmp(entry->d_name, ".") == 0 ||
             strcmp(entry->d_name, "..") == 0) {
             continue;
@@ -146,4 +147,4 @@ int main(int argc, char *argv[]) {
     setData(argc, argv);
     recursiveFinder(argv[1]);
     return 0;
-};
+}
